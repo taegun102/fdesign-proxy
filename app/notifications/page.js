@@ -52,8 +52,8 @@ export default function NotificationsPage() {
                 </p>
               ) : (
                 <p>
-                  💬 <span className="text-purple-300">{n.nickname}</span>님이 댓글을 남겼습니다: "
-                  <span className="text-gray-300">{n.text}</span>"
+                  💬 <span className="text-purple-300">{n.nickname}</span>님이 댓글을 남겼습니다: &quot;
+                  <span className="text-gray-300">{n.text}</span> &quot;
                 </p>
               )}
               <p className="text-xs text-gray-400 mt-1">
