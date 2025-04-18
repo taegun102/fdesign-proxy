@@ -24,7 +24,11 @@ export default function Home() {
       <main className="relative z-10 flex flex-col items-center justify-start pt-30 h-screen px-6 text-center">
 
         {/* 로고 */}
-        <img src="https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg" alt="임시 로고" width="100" />
+        <img
+  src="/logofull.png"
+  alt="F_DESIGN 로고"
+  className="h-24 w-auto mb-4"
+/>
 
 
         <h1 className="text-5xl font-bold text-purple-300 drop-shadow-md mb-4">
