@@ -25,7 +25,7 @@ export default function Home() {
 
         {/* 로고 */}
         <img
-  src="/logofull.png"
+  src="/logofull.PNG"
   alt="F_DESIGN 로고"
   className="h-24 w-auto mb-4"
 />
