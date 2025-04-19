@@ -5,7 +5,17 @@ import { auth, db } from '../../firebase/firebaseConfig';
 import { onAuthStateChanged } from 'firebase/auth';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { translateToEnglish } from '../../utils/translatePrompt';
-import { query, where, collection, getDocs, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import {
+  query,
+  where,
+  collection,
+  getDocs,
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc
+} from 'firebase/firestore';
+
 
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
