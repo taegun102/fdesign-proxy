@@ -1,4 +1,5 @@
 // app/api/replicateGenerate/route.js
+
 import { NextResponse } from 'next/server';
 
 export async function POST(req) {
@@ -36,9 +37,10 @@ export async function POST(req) {
       Authorization: `Token ${replicateApiKey}`,
     },
   });
+
   let status = await statusResponse.json();
 
-  const maxWaitTime = 120; // 최대 60초
+  const maxWaitTime = 55; // 🔥 Vercel 타임아웃 방지
   let waited = 0;
 
   while (status.status !== 'succeeded' && status.status !== 'failed' && waited < maxWaitTime) {
@@ -66,12 +68,11 @@ export async function POST(req) {
     }
 
     return NextResponse.json({ image: imageUrl });
-  } else {
-    return NextResponse.json({ error: '이미지 생성 실패' }, { status: 500 });
   }
-  if (status.status !== 'succeeded') {
-    return NextResponse.json({
-      error: '이미지 생성에 너무 오래 걸립니다. 다시 시도해주세요.',
-    }, { status: 500 });
-  }
+
+  // 4. 실패 또는 타임아웃 응답
+  return NextResponse.json(
+    { error: '이미지 생성에 너무 오래 걸립니다. 다시 시도해주세요.' },
+    { status: 408 }
+  );
 }
