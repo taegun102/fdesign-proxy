@@ -3,9 +3,9 @@
 import { useEffect, useState } from 'react';
 import { auth, db } from '../../firebase/firebaseConfig';
 import { onAuthStateChanged } from 'firebase/auth';
-import { addDoc, serverTimestamp } from 'firebase/firestore';
-import { translateToEnglish } from '../../utils/translatePrompt';
 import {
+  addDoc,
+  serverTimestamp,
   query,
   where,
   collection,
@@ -13,21 +13,18 @@ import {
   doc,
   getDoc,
   setDoc,
-  updateDoc
+  updateDoc,
 } from 'firebase/firestore';
-
-
+import { translateToEnglish } from '../../utils/translatePrompt';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
-import { canGenerateImage } from '../../utils/usageLimiter'; // 추가
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
 export default function GeneratePage() {
   const [user, setUser] = useState(null);
-
   const [gender, setGender] = useState('여성');
   const [color, setColor] = useState('');
   const [mood, setMood] = useState('로맨틱');
@@ -64,88 +61,64 @@ export default function GeneratePage() {
     );
   };
 
-
   const handleGenerate = async () => {
     if (!user) return alert('로그인이 필요합니다.');
-  
+
     setLoading(true);
     setImage(null);
-  
+
     try {
       const usageRef = doc(db, 'usageLogs', user.uid);
       const usageSnap = await getDoc(usageRef);
-  
       const nowKST = dayjs().tz('Asia/Seoul');
       const todayMidnight = nowKST.startOf('day');
-  
       let currentCount = 0;
-  
+
       if (!usageSnap.exists()) {
-        // 최초 생성
-        await setDoc(usageRef, {
-          count: 1,
-          resetDate: todayMidnight.toDate(),
-        });
+        await setDoc(usageRef, { count: 1, resetDate: todayMidnight.toDate() });
       } else {
         const data = usageSnap.data();
         const lastReset = dayjs(data.resetDate.toDate());
-  
         if (lastReset.isBefore(todayMidnight)) {
-          // 날짜가 바뀌었으면 초기화
-          await setDoc(usageRef, {
-            count: 1,
-            resetDate: todayMidnight.toDate(),
-          });
+          await setDoc(usageRef, { count: 1, resetDate: todayMidnight.toDate() });
         } else {
           currentCount = data.count;
-  
           if (currentCount >= 5) {
             setLoading(false);
             return alert('이미지를 더 생성하려면 플랜을 업그레이드 하거나 12시 이후에 다시 시도해주세요.');
           }
-  
-          await updateDoc(usageRef, {
-            count: currentCount + 1,
-          });
+          await updateDoc(usageRef, { count: currentCount + 1 });
         }
       }
-  
-      // 🔽 여기부터는 기존 생성 로직 계속됨
+
       const koreanPrompt = customPrompt || buildNaturalPrompt();
       setPromptText(koreanPrompt);
       const translated = await translateToEnglish(koreanPrompt);
-  
-      console.log('보내는 prompt:', translated);
-console.log('보내는 uid:', user.uid);
 
-      const res = await fetch('https://fdesign-backend.onrender.com', {
+      console.log('보내는 prompt:', translated);
+      console.log('보내는 uid:', user.uid);
+
+      const res = await fetch('https://fdesign-backend.onrender.com/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          prompt: translated,
-          uid: user.uid,
-        }),
+        body: JSON.stringify({ prompt: translated, uid: user.uid }),
       });
-      
-      const responseText = await res.text(); // JSON 대신 text로 받기
+
+      const responseText = await res.text();
       console.log('🔍 응답 원본:', responseText);
-      
+
       try {
-        const data = JSON.parse(responseText); // JSON으로 파싱 시도
-        setImage(data.image);
+        const data = JSON.parse(responseText);
+        if (data?.image) {
+          setImage(data.image);
+        } else {
+          throw new Error('이미지가 생성되지 않았습니다.');
+        }
       } catch (error) {
         console.error('❌ JSON 파싱 실패:', error);
         alert('서버에서 잘못된 응답을 받았습니다.');
       }
-      
-      const data = await res.json();
-  
-      if (data?.image) {
-        setImage(data.image);
-      } else {
-        throw new Error('이미지가 생성되지 않았습니다.');
-      }
-  
+
     } catch (err) {
       console.error('❌ 이미지 생성 실패:', err);
       alert('이미지 생성 실패');
@@ -153,10 +126,9 @@ console.log('보내는 uid:', user.uid);
       setLoading(false);
     }
   };
-  
+
   const saveToGallery = async () => {
     if (!user || !image) return;
-
     const tagsArray = [mood, gender, type, season, fabric, styleType, pattern, occasion].filter(Boolean);
     await addDoc(collection(db, 'userImages'), {
       uid: user.uid,
@@ -188,7 +160,6 @@ console.log('보내는 uid:', user.uid);
       }}
     >
       <div className="absolute inset-0 bg-black bg-opacity-70 z-0" />
-
       <div className="relative z-10 w-full max-w-4xl">
         <h1 className="text-3xl font-bold mb-6 text-purple-400 text-center">나만의 의류 디자인 생성하기</h1>
         {!user && <p className="text-red-400 mb-4 text-center">⚠️ 로그인 후 이용해 주세요.</p>}
@@ -209,11 +180,9 @@ console.log('보내는 uid:', user.uid);
             { label: '테마', value: theme, setValue: setTheme, type: 'text', placeholder: '예: 하이틴룩' },
             { label: '디테일 요소', value: details, setValue: setDetails, type: 'text', placeholder: '예: 프릴, 지퍼' },
           ].map((opt, i) =>
-            opt.type === 'text' ? (
-              <TextInput key={i} {...opt} />
-            ) : (
-              <SelectOption key={i} {...opt} />
-            )
+            opt.type === 'text'
+              ? <TextInput key={i} {...opt} />
+              : <SelectOption key={i} {...opt} />
           )}
         </div>
 
@@ -249,7 +218,6 @@ console.log('보내는 uid:', user.uid);
   );
 }
 
-// SelectOption 컴포넌트
 function SelectOption({ label, value, setValue, options }) {
   return (
     <div>
@@ -264,7 +232,6 @@ function SelectOption({ label, value, setValue, options }) {
   );
 }
 
-// TextInput 컴포넌트
 function TextInput({ label, value, setValue, placeholder }) {
   return (
     <div>
