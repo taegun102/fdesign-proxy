@@ -118,9 +118,11 @@ export default function GeneratePage() {
       const res = await fetch('https://fdesign-backend.onrender.com', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: translated }),
-        uid: user.uid, //
-      });
+        body: JSON.stringify({
+          prompt: translated,
+          uid: user.uid, // ✅ body 안에 포함시켜야 서버가 받을 수 있음
+        }),
+      });      
   
       const data = await res.json();
   
