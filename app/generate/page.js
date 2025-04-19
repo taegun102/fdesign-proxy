@@ -58,7 +58,7 @@ export default function GeneratePage() {
 
       const translated = await translateToEnglish(koreanPrompt);
 
-      const res = await fetch('/api/replicateGenerate', {
+      const res = await fetch('https://fdesign-backend.onrender.com', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt: translated }),

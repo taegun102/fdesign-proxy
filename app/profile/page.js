@@ -142,7 +142,6 @@ export default function ProfilePage() {
           {myUploads.map((img) => (
             <div key={img.id} className="bg-gray-800 p-3 rounded shadow-lg">
               <img src={img.url} alt="업로드 이미지" className="rounded mb-2" />
-              <p className="text-sm text-gray-300">{img.prompt}</p>
               <button
                 onClick={() => handleDeletePost(img.id)}
                 className="mt-2 bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-xs"
