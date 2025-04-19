@@ -105,7 +105,7 @@ export default function GeneratePage() {
     <div
       className="relative min-h-screen text-white px-6 py-10 flex flex-col items-center overflow-hidden"
       style={{
-        backgroundImage: 'url("/tribal-strong.jpg")',
+        backgroundImage: 'url("/tribal-strong.png")',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',

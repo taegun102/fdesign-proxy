@@ -19,7 +19,7 @@ export default function Home() {
     <div
       className="relative min-h-screen text-white overflow-hidden"
       style={{
-        backgroundImage: 'url("/tribal-strong.jpg")', // 배경 이미지
+        backgroundImage: 'url("/tribal-strong.png")', // 배경 이미지
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
@@ -35,7 +35,7 @@ export default function Home() {
         <img
           src="/logofull.png"
           alt="F_DESIGN 로고"
-          className="h-20 w-auto mb-4"
+          className="h-80 w-auto mb-4"
         />
 
         <h1 className="text-5xl font-bold text-purple-300 drop-shadow-md mb-4">
