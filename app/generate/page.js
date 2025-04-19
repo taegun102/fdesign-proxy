@@ -5,8 +5,8 @@ import { auth, db } from '../../firebase/firebaseConfig';
 import { onAuthStateChanged } from 'firebase/auth';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { translateToEnglish } from '../../utils/translatePrompt';
-import { query, where, getDocs } from 'firebase/firestore';
-import { query, where, collection, getDocs } from 'firebase/firestore';
+import { query, where, collection, getDocs, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
@@ -126,9 +126,6 @@ export default function GeneratePage() {
       setLoading(false);
     }
   };
-  
-  
-  
   
   const saveToGallery = async () => {
     if (!user || !image) return;
