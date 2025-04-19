@@ -10,6 +10,7 @@ import { query, where, collection, getDocs } from 'firebase/firestore';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
+import { canGenerateImage } from '../../utils/usageLimiter'; // 추가
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -53,6 +54,7 @@ export default function GeneratePage() {
     );
   };
 
+
   const handleGenerate = async () => {
     if (!user) return alert('로그인이 필요합니다.');
   
@@ -60,23 +62,47 @@ export default function GeneratePage() {
     setImage(null);
   
     try {
-      const todayStart = dayjs().tz('Asia/Seoul').startOf('day').toDate();
-      const todayQuery = query(
-        collection(db, 'userImages'),
-        where('uid', '==', user.uid),
-        where('createdAt', '>=', todayStart)
-      );
-      const snapshot = await getDocs(todayQuery);
+      const usageRef = doc(db, 'usageLogs', user.uid);
+      const usageSnap = await getDoc(usageRef);
   
-      if (snapshot.size >= 5) {
-        alert('이미지를 더 생성하려면 플랜을 업그레이드 하거나 12시 이후에 다시 시도해주세요.');
-        setLoading(false);
-        return;
+      const nowKST = dayjs().tz('Asia/Seoul');
+      const todayMidnight = nowKST.startOf('day');
+  
+      let currentCount = 0;
+  
+      if (!usageSnap.exists()) {
+        // 최초 생성
+        await setDoc(usageRef, {
+          count: 1,
+          resetDate: todayMidnight.toDate(),
+        });
+      } else {
+        const data = usageSnap.data();
+        const lastReset = dayjs(data.resetDate.toDate());
+  
+        if (lastReset.isBefore(todayMidnight)) {
+          // 날짜가 바뀌었으면 초기화
+          await setDoc(usageRef, {
+            count: 1,
+            resetDate: todayMidnight.toDate(),
+          });
+        } else {
+          currentCount = data.count;
+  
+          if (currentCount >= 5) {
+            setLoading(false);
+            return alert('이미지를 더 생성하려면 플랜을 업그레이드 하거나 12시 이후에 다시 시도해주세요.');
+          }
+  
+          await updateDoc(usageRef, {
+            count: currentCount + 1,
+          });
+        }
       }
   
+      // 🔽 여기부터는 기존 생성 로직 계속됨
       const koreanPrompt = customPrompt || buildNaturalPrompt();
       setPromptText(koreanPrompt);
-  
       const translated = await translateToEnglish(koreanPrompt);
   
       const res = await fetch('https://fdesign-backend.onrender.com', {
@@ -92,6 +118,7 @@ export default function GeneratePage() {
       } else {
         throw new Error('이미지가 생성되지 않았습니다.');
       }
+  
     } catch (err) {
       console.error('❌ 이미지 생성 실패:', err);
       alert('이미지 생성 실패');
@@ -99,6 +126,8 @@ export default function GeneratePage() {
       setLoading(false);
     }
   };
+  
+  
   
   
   const saveToGallery = async () => {
