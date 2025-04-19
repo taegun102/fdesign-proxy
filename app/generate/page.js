@@ -6,6 +6,13 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { translateToEnglish } from '../../utils/translatePrompt';
 import { query, where, getDocs } from 'firebase/firestore';
+import { query, where, collection, getDocs } from 'firebase/firestore';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 export default function GeneratePage() {
   const [user, setUser] = useState(null);
@@ -53,28 +60,15 @@ export default function GeneratePage() {
     setImage(null);
   
     try {
-      // Firestore에서 오늘 생성된 이미지 수 가져오기 (한국 시간 기준)
-      const now = new Date();
-      const koreaTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
-      const todayStart = new Date(koreaTime);
-      todayStart.setHours(0, 0, 0, 0);
-  
-      const snapshot = await getDocs(
-        query(
-          collection(db, 'userImages'),
-          where('uid', '==', user.uid),
-          where('createdAt', '>=', serverTimestamp()) // 임시, 아래 코드로 수정 필요
-        )
+      const todayStart = dayjs().tz('Asia/Seoul').startOf('day').toDate();
+      const todayQuery = query(
+        collection(db, 'userImages'),
+        where('uid', '==', user.uid),
+        where('createdAt', '>=', todayStart)
       );
+      const snapshot = await getDocs(todayQuery);
   
-      // 타임스탬프 비교를 위해 수동으로 비교
-      let todayCount = 0;
-      snapshot.forEach((doc) => {
-        const created = doc.data().createdAt?.toDate();
-        if (created && created >= todayStart) todayCount++;
-      });
-  
-      if (todayCount >= 5) {
+      if (snapshot.size >= 5) {
         alert('이미지를 더 생성하려면 플랜을 업그레이드 하거나 12시 이후에 다시 시도해주세요.');
         setLoading(false);
         return;
@@ -106,6 +100,7 @@ export default function GeneratePage() {
     }
   };
   
+  
   const saveToGallery = async () => {
     if (!user || !image) return;
 
@@ -133,7 +128,7 @@ export default function GeneratePage() {
     <div
       className="relative min-h-screen text-white px-6 py-10 flex flex-col items-center overflow-hidden"
       style={{
-        backgroundImage: 'url("/tribal-strong.jpg")',
+        backgroundImage: 'url("/tribal-strong.png")',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
