@@ -98,7 +98,7 @@ export default function GeneratePage() {
       console.log('보내는 prompt:', translated);
       console.log('보내는 uid:', user.uid);
 
-      const res = await fetch('https://fdesign-backend2.onrender.com/generate', {
+      fetch("https://us-central1-fdesign-b.cloudfunctions.net/api/generate", {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt: translated, uid: user.uid }),
