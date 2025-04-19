@@ -119,6 +119,7 @@ export default function GeneratePage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt: translated }),
+        uid: user.uid, //
       });
   
       const data = await res.json();
