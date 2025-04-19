@@ -115,15 +115,29 @@ export default function GeneratePage() {
       setPromptText(koreanPrompt);
       const translated = await translateToEnglish(koreanPrompt);
   
+      console.log('보내는 prompt:', translated);
+console.log('보내는 uid:', user.uid);
+
       const res = await fetch('https://fdesign-backend.onrender.com', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           prompt: translated,
-          uid: user.uid, // ✅ body 안에 포함시켜야 서버가 받을 수 있음
+          uid: user.uid,
         }),
-      });      
-  
+      });
+      
+      const responseText = await res.text(); // JSON 대신 text로 받기
+      console.log('🔍 응답 원본:', responseText);
+      
+      try {
+        const data = JSON.parse(responseText); // JSON으로 파싱 시도
+        setImage(data.image);
+      } catch (error) {
+        console.error('❌ JSON 파싱 실패:', error);
+        alert('서버에서 잘못된 응답을 받았습니다.');
+      }
+      
       const data = await res.json();
   
       if (data?.image) {
