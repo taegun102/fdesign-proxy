@@ -9,7 +9,6 @@ import { translateToEnglish } from '../../utils/translatePrompt';
 export default function GeneratePage() {
   const [user, setUser] = useState(null);
 
-  // 옵션 state
   const [gender, setGender] = useState('여성');
   const [color, setColor] = useState('');
   const [mood, setMood] = useState('로맨틱');
@@ -103,66 +102,78 @@ export default function GeneratePage() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white px-6 py-10 flex flex-col items-center">
-      <h1 className="text-3xl font-bold mb-6 text-purple-400">나만의 의류 디자인 생성하기</h1>
-      {!user && <p className="text-red-400 mb-4">⚠️ 로그인 후 이용해 주세요.</p>}
+    <div
+      className="relative min-h-screen text-white px-6 py-10 flex flex-col items-center overflow-hidden"
+      style={{
+        backgroundImage: 'url("/tribal-strong.jpg")',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      }}
+    >
+      <div className="absolute inset-0 bg-black bg-opacity-70 z-0" />
 
-      <div className="w-full max-w-2xl grid grid-cols-1 md:grid-cols-2 gap-4">
-        {[
-          { label: '성별', value: gender, setValue: setGender, options: ['여성', '남성', '유니섹스'] },
-          { label: '컬러', value: color, setValue: setColor, type: 'text', placeholder: '예: 어두운 보라' },
-          { label: '무드', value: mood, setValue: setMood, options: ['키치', '로맨틱', '고딕', '모던', '스트리트'] },
-          { label: '옷 종류', value: type, setValue: setType, options: ['셔츠', '드레스', '후드티', '점프수트'] },
-          { label: '핏', value: fit, setValue: setFit, options: ['오버핏', '슬림핏', '루즈핏'] },
-          { label: '시즌', value: season, setValue: setSeason, options: ['봄', '여름', '가을', '겨울'] },
-          { label: '소재', value: fabric, setValue: setFabric, options: ['레더', '코튼', '실크', '데님', '니트'] },
-          { label: '스타일 타입', value: styleType, setValue: setStyleType, options: ['하이엔드', '캐주얼', '포멀', '아방가르드'] },
-          { label: '패턴', value: pattern, setValue: setPattern, options: ['무지', '체크', '스트라이프', '플로럴', '애니멀'] },
-          { label: '상황/목적', value: occasion, setValue: setOccasion, type: 'text', placeholder: '예: 데일리룩' },
-          { label: '악세서리 포함', value: accessory, setValue: setAccessory, type: 'text', placeholder: '예: 벨트, 체인' },
-          { label: '테마', value: theme, setValue: setTheme, type: 'text', placeholder: '예: 하이틴룩' },
-          { label: '디테일 요소', value: details, setValue: setDetails, type: 'text', placeholder: '예: 프릴, 지퍼' },
-        ].map((opt, i) =>
-          opt.type === 'text' ? (
-            <TextInput key={i} {...opt} />
-          ) : (
-            <SelectOption key={i} {...opt} />
-          )
+      <div className="relative z-10 w-full max-w-4xl">
+        <h1 className="text-3xl font-bold mb-6 text-purple-400 text-center">나만의 의류 디자인 생성하기</h1>
+        {!user && <p className="text-red-400 mb-4 text-center">⚠️ 로그인 후 이용해 주세요.</p>}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {[
+            { label: '성별', value: gender, setValue: setGender, options: ['여성', '남성', '유니섹스'] },
+            { label: '컬러', value: color, setValue: setColor, type: 'text', placeholder: '예: 어두운 보라' },
+            { label: '무드', value: mood, setValue: setMood, options: ['키치', '로맨틱', '고딕', '모던', '스트리트'] },
+            { label: '옷 종류', value: type, setValue: setType, options: ['셔츠', '드레스', '후드티', '점프수트'] },
+            { label: '핏', value: fit, setValue: setFit, options: ['오버핏', '슬림핏', '루즈핏'] },
+            { label: '시즌', value: season, setValue: setSeason, options: ['봄', '여름', '가을', '겨울'] },
+            { label: '소재', value: fabric, setValue: setFabric, options: ['레더', '코튼', '실크', '데님', '니트'] },
+            { label: '스타일 타입', value: styleType, setValue: setStyleType, options: ['하이엔드', '캐주얼', '포멀', '아방가르드'] },
+            { label: '패턴', value: pattern, setValue: setPattern, options: ['무지', '체크', '스트라이프', '플로럴', '애니멀'] },
+            { label: '상황/목적', value: occasion, setValue: setOccasion, type: 'text', placeholder: '예: 데일리룩' },
+            { label: '악세서리 포함', value: accessory, setValue: setAccessory, type: 'text', placeholder: '예: 벨트, 체인' },
+            { label: '테마', value: theme, setValue: setTheme, type: 'text', placeholder: '예: 하이틴룩' },
+            { label: '디테일 요소', value: details, setValue: setDetails, type: 'text', placeholder: '예: 프릴, 지퍼' },
+          ].map((opt, i) =>
+            opt.type === 'text' ? (
+              <TextInput key={i} {...opt} />
+            ) : (
+              <SelectOption key={i} {...opt} />
+            )
+          )}
+        </div>
+
+        <div className="mt-6">
+          <label className="text-sm text-gray-300 mb-1 block">직접 입력 (선택)</label>
+          <textarea
+            value={customPrompt}
+            onChange={(e) => setCustomPrompt(e.target.value)}
+            placeholder="직접 프롬프트를 입력하고 싶다면 여기에 입력하세요."
+            className="w-full bg-gray-800 p-2 rounded h-24"
+          />
+        </div>
+
+        <button
+          onClick={handleGenerate}
+          disabled={loading}
+          className="mt-6 bg-purple-600 hover:bg-purple-700 px-6 py-2 rounded text-white w-full"
+        >
+          {loading ? '생성 중...' : 'AI에게 요청하기'}
+        </button>
+
+        {image && (
+          <div className="mt-10 text-center">
+            <img src={image} alt="생성 이미지" className="rounded-lg shadow-lg border border-gray-600" />
+            <div className="mt-4 flex gap-4 justify-center">
+              <button onClick={downloadImage} className="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded text-sm">📥 사진 저장</button>
+              <button onClick={saveToGallery} className="bg-purple-700 hover:bg-purple-600 px-4 py-2 rounded text-sm">💾 갤러리에 저장</button>
+            </div>
+          </div>
         )}
       </div>
-
-      <div className="w-full max-w-2xl mt-6">
-        <label className="text-sm text-gray-300 mb-1 block">직접 입력 (선택)</label>
-        <textarea
-          value={customPrompt}
-          onChange={(e) => setCustomPrompt(e.target.value)}
-          placeholder="직접 프롬프트를 입력하고 싶다면 여기에 입력하세요.(직접 입력시 위 선택 옵션들은 태그로 사용됩니다.)"
-          className="w-full bg-gray-800 p-2 rounded h-24"
-        />
-      </div>
-
-      <button
-        onClick={handleGenerate}
-        disabled={loading}
-        className="mt-6 bg-purple-600 hover:bg-purple-700 px-6 py-2 rounded text-white"
-      >
-        {loading ? '생성 중...' : 'AI에게 요청하기'}
-      </button>
-
-      {image && (
-        <div className="mt-10 text-center">
-          <img src={image} alt="생성 이미지" className="rounded-lg shadow-lg border border-gray-600" />
-          <div className="mt-4 flex gap-4 justify-center">
-            <button onClick={downloadImage} className="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded text-sm">📥 사진 저장</button>
-            <button onClick={saveToGallery} className="bg-purple-700 hover:bg-purple-600 px-4 py-2 rounded text-sm">💾 갤러리에 저장</button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
 
-// 재사용 가능한 select option
+// SelectOption 컴포넌트
 function SelectOption({ label, value, setValue, options }) {
   return (
     <div>
@@ -177,7 +188,7 @@ function SelectOption({ label, value, setValue, options }) {
   );
 }
 
-// 재사용 가능한 text input
+// TextInput 컴포넌트
 function TextInput({ label, value, setValue, placeholder }) {
   return (
     <div>

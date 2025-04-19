@@ -16,20 +16,27 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-b from-[#0a001f] to-black text-white overflow-hidden">
-      {/* 배경 애니메이션 */}
-      <div className="absolute inset-0 z-0 bg-gradient-to-b from-black via-black to-purple-900" />
+    <div
+      className="relative min-h-screen text-white overflow-hidden"
+      style={{
+        backgroundImage: 'url("/tribal-strong.jpg")', // 배경 이미지
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      }}
+    >
+      {/* 어두운 반투명 오버레이 */}
+      <div className="absolute inset-0 bg-black bg-opacity-70 z-0" />
 
       {/* 메인 콘텐츠 */}
-      <main className="relative z-10 flex flex-col items-center justify-start pt-30 h-screen px-6 text-center">
+      <main className="relative z-10 flex flex-col items-center justify-start pt-28 h-screen px-6 text-center">
 
         {/* 로고 */}
         <img
-         src="/logofull.png"
-         alt="F_DESIGN 로고"
-         className="h-100 w-auto mb-4"
+          src="/logofull.png"
+          alt="F_DESIGN 로고"
+          className="h-20 w-auto mb-4"
         />
-
 
         <h1 className="text-5xl font-bold text-purple-300 drop-shadow-md mb-4">
           간편한 패션 디자인
