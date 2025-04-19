@@ -146,7 +146,6 @@ export default function ProfilePage() {
                 onClick={() => handleDeletePost(img.id)}
                 className="mt-2 bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-xs"
               >
-                삭제
               </button>
             </div>
           ))}

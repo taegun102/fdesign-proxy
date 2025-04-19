@@ -1,9 +1,11 @@
 {
-  "name": "fdesign-prox",
+  "name": "fdesign-proxy",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "server.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "nodemon server.js",
+    "start": "node server.js"
   },
   "keywords": [],
   "author": "",
@@ -14,5 +16,8 @@
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
   }
 }
