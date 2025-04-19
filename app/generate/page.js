@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { auth, db } from '../../firebase/firebaseConfig';
 import { onAuthStateChanged } from 'firebase/auth';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { addDoc, serverTimestamp } from 'firebase/firestore';
 import { translateToEnglish } from '../../utils/translatePrompt';
 import {
   query,
