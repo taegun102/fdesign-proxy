@@ -5,112 +5,7 @@ import { auth, db } from '../../firebase/firebaseConfig';
 import { onAuthStateChanged } from 'firebase/auth';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { translateToEnglish } from '../../utils/translatePrompt';
-import { query, where, getDocs, Timestamp } from 'firebase/firestore';
-import {
-  addDoc, collection, serverTimestamp,
-  query, where, getDocs, Timestamp
-} from 'firebase/firestore';
-
-const checkGenerationLimit = async () => {
-  if (!user) return false;
-
-  const startOfToday = new Date();
-  startOfToday.setHours(0, 0, 0, 0);
-
-  const todayTimestamp = Timestamp.fromDate(startOfToday);
-
-  const q = query(
-    collection(db, 'userImages'),
-    where('uid', '==', user.uid),
-    where('createdAt', '>=', todayTimestamp)
-  );
-
-  const snapshot = await getDocs(q);
-  return snapshot.size >= 5;
-};
-
-const handleGenerate = async () => {
-  if (!user) return alert('로그인이 필요합니다.');
-
-  setLoading(true);
-  setImage(null);
-
-  try {
-    // Firestore에서 오늘 생성된 이미지 수 가져오기 (한국 시간 기준)
-    const now = new Date();
-    const koreaTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
-    const todayStart = new Date(koreaTime);
-    todayStart.setHours(0, 0, 0, 0);
-
-    const snapshot = await getDocs(
-      query(
-        collection(db, 'userImages'),
-        where('uid', '==', user.uid),
-        where('createdAt', '>=', serverTimestamp()) // 임시, 아래 코드로 수정 필요
-      )
-    );
-
-    // 타임스탬프 비교를 위해 수동으로 비교
-    let todayCount = 0;
-    snapshot.forEach((doc) => {
-      const created = doc.data().createdAt?.toDate();
-      if (created && created >= todayStart) todayCount++;
-    });
-
-    if (todayCount >= 5) {
-      alert('이미지를 더 생성하려면 플랜을 업그레이드 하거나 12시 이후에 다시 시도해주세요.');
-      setLoading(false);
-      return;
-    }
-
-    const koreanPrompt = customPrompt || buildNaturalPrompt();
-    setPromptText(koreanPrompt);
-
-    const translated = await translateToEnglish(koreanPrompt);
-
-    const res = await fetch('https://fdesign-backend.onrender.com', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt: translated }),
-    });
-
-    const data = await res.json();
-
-    if (data?.image) {
-      setImage(data.image);
-    } else {
-      throw new Error('이미지가 생성되지 않았습니다.');
-    }
-  } catch (err) {
-    console.error('❌ 이미지 생성 실패:', err);
-    alert('이미지 생성 실패');
-  } finally {
-    setLoading(false);
-  }
-};
-
-// 한국 시간 기준 오늘 자정
-const getTodayMidnightKST = () => {
-  const now = new Date();
-  const kstNow = new Date(now.getTime() + 9 * 60 * 60 * 1000); // UTC+9
-  kstNow.setUTCHours(0, 0, 0, 0);
-  return Timestamp.fromDate(new Date(kstNow.getTime() - 9 * 60 * 60 * 1000)); // 다시 UTC로 변환
-};
-const todayMidnight = getTodayMidnightKST();
-
-const imageQuery = query(
-  collection(db, 'userImages'),
-  where('uid', '==', user.uid),
-  where('createdAt', '>=', todayMidnight)
-);
-
-const snapshot = await getDocs(imageQuery);
-
-if (snapshot.size >= 5) {
-  alert('이미지를 더 생성하려면 플랜을 업그레이드 하거나 12시 이후에 다시 시도해주세요.');
-  setLoading(false);
-  return;
-}
+import { query, where, getDocs } from 'firebase/firestore';
 
 export default function GeneratePage() {
   const [user, setUser] = useState(null);
@@ -153,24 +48,51 @@ export default function GeneratePage() {
 
   const handleGenerate = async () => {
     if (!user) return alert('로그인이 필요합니다.');
-
+  
     setLoading(true);
     setImage(null);
-
+  
     try {
+      // Firestore에서 오늘 생성된 이미지 수 가져오기 (한국 시간 기준)
+      const now = new Date();
+      const koreaTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
+      const todayStart = new Date(koreaTime);
+      todayStart.setHours(0, 0, 0, 0);
+  
+      const snapshot = await getDocs(
+        query(
+          collection(db, 'userImages'),
+          where('uid', '==', user.uid),
+          where('createdAt', '>=', serverTimestamp()) // 임시, 아래 코드로 수정 필요
+        )
+      );
+  
+      // 타임스탬프 비교를 위해 수동으로 비교
+      let todayCount = 0;
+      snapshot.forEach((doc) => {
+        const created = doc.data().createdAt?.toDate();
+        if (created && created >= todayStart) todayCount++;
+      });
+  
+      if (todayCount >= 5) {
+        alert('이미지를 더 생성하려면 플랜을 업그레이드 하거나 12시 이후에 다시 시도해주세요.');
+        setLoading(false);
+        return;
+      }
+  
       const koreanPrompt = customPrompt || buildNaturalPrompt();
       setPromptText(koreanPrompt);
-
+  
       const translated = await translateToEnglish(koreanPrompt);
-
+  
       const res = await fetch('https://fdesign-backend.onrender.com', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt: translated }),
       });
-
+  
       const data = await res.json();
-
+  
       if (data?.image) {
         setImage(data.image);
       } else {
@@ -183,7 +105,7 @@ export default function GeneratePage() {
       setLoading(false);
     }
   };
-
+  
   const saveToGallery = async () => {
     if (!user || !image) return;
 
