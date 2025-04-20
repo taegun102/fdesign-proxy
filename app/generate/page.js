@@ -84,7 +84,7 @@ export default function GeneratePage() {
     return (
       `${season} 시즌에 어울리는 ${gender}용 ${color} 컬러의 ${fit} 핏 ${fabric ? fabric + ' 소재의 ' : ''}` +
       `${pattern ? pattern + ' 패턴이 들어간 ' : ''}${type} 디자인입니다. ` +
-      `스타일은 ${mood} 무드와 ${styleType} 스타일로 구성되었고, ` +
+      `스타일은 ${mood} 무드로 구성되었고, ` +
       `${theme ? `테마는 ${theme}이며, ` : ''}` +
       `${occasion ? `사용 목적은 ${occasion}입니다. ` : ''}` +
       `${details ? `디테일 요소로는 ${details}가 있으며, ` : ''}` +
@@ -208,17 +208,17 @@ export default function GeneratePage() {
           {[
             { label: '성별', value: gender, setValue: setGender, options: ['여성', '남성', '유니섹스'] },
             { label: '컬러', value: color, setValue: setColor, type: 'text', placeholder: '예: 어두운 보라' },
-            { label: '무드', value: mood, setValue: setMood, options: ['키치', '로맨틱', '고딕', '모던', '스트리트'] },
-            { label: '옷 종류', value: type, setValue: setType, options: ['셔츠', '드레스', '후드티', '점프수트'] },
+            { label: '무드', value: mood, setValue: setMood, options: ['키치', '로맨틱', '고딕', '모던', '스트리트','빈티지','보헤미안','아방가르드','캐주얼','시크'] },
+            { label: '옷 종류', value: type, setValue: setType, options: ['셔츠', '드레스', '후드티', '점프수트','티셔츠','재킷','코트','원피스','스커트','팬츠','니트'] },
             { label: '핏', value: fit, setValue: setFit, options: ['오버핏', '슬림핏', '루즈핏'] },
             { label: '시즌', value: season, setValue: setSeason, options: ['봄', '여름', '가을', '겨울'] },
-            { label: '소재', value: fabric, setValue: setFabric, options: ['레더', '코튼', '실크', '데님', '니트'] },
-            { label: '스타일 타입', value: styleType, setValue: setStyleType, options: ['하이엔드', '캐주얼', '포멀', '아방가르드'] },
-            { label: '패턴', value: pattern, setValue: setPattern, options: ['무지', '체크', '스트라이프', '플로럴', '애니멀'] },
+            { label: '소재', value: fabric, setValue: setFabric, options: ['레더', '코튼', '실크', '데님', '니트','다이마루','시스루','퍼'] },
+            { label: '패턴', value: pattern, setValue: setPattern, options: ['무지', '체크', '스트라이프', '플로럴', '애니멀','페이즐리','카모플라주'] },
             { label: '상황/목적', value: occasion, setValue: setOccasion, type: 'text', placeholder: '예: 데일리룩' },
-            { label: '악세서리 포함', value: accessory, setValue: setAccessory, type: 'text', placeholder: '예: 벨트, 체인' },
+            { label: '악세서리 포함', value: accessory, setValue: setAccessory, type: 'text', placeholder: '예: 벨트, 포켓' },
             { label: '테마', value: theme, setValue: setTheme, type: 'text', placeholder: '예: 하이틴룩' },
             { label: '디테일 요소', value: details, setValue: setDetails, type: 'text', placeholder: '예: 프릴, 지퍼' },
+         
           ].map((opt, i) =>
             opt.type === 'text'
               ? <TextInput key={i} {...opt} />
