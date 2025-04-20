@@ -108,27 +108,32 @@ export default function GeneratePage() {
     setImage(null);
   
     try {
-      const usageRef = doc(db, 'usageLogs', user.uid);
-      const usageSnap = await getDoc(usageRef);
       const nowKST = dayjs().tz('Asia/Seoul');
       const todayMidnight = nowKST.startOf('day');
       let currentCount = 0;
   
-      if (!usageSnap.exists()) {
-        await setDoc(usageRef, { count: 1, resetDate: todayMidnight.toDate() });
-      } else {
-        const data = usageSnap.data();
-        const lastReset = dayjs(data.resetDate.toDate());
-        if (lastReset.isBefore(todayMidnight)) {
+      if (!user.isAdmin) {
+        const usageRef = doc(db, 'usageLogs', user.uid);
+        const usageSnap = await getDoc(usageRef);
+  
+        if (!usageSnap.exists()) {
           await setDoc(usageRef, { count: 1, resetDate: todayMidnight.toDate() });
+          setUsageCount(1);
         } else {
-          currentCount = data.count;
-          if (!user?.isAdmin && currentCount >= 5) {
-            setLoading(false);
-            return alert('이미지를 더 생성하려면 플랜을 업그레이드 하거나 12시 이후에 다시 시도해주세요.');
+          const data = usageSnap.data();
+          const lastReset = dayjs(data.resetDate.toDate());
+          if (lastReset.isBefore(todayMidnight)) {
+            await setDoc(usageRef, { count: 1, resetDate: todayMidnight.toDate() });
+            setUsageCount(1);
+          } else {
+            currentCount = data.count;
+            if (currentCount >= 5) {
+              setLoading(false);
+              return alert('이미지를 더 생성하려면 플랜을 업그레이드 하거나 12시 이후에 다시 시도해주세요.');
+            }
+            await updateDoc(usageRef, { count: currentCount + 1 });
+            setUsageCount(currentCount + 1);
           }
-          await updateDoc(usageRef, { count: currentCount + 1 });
-          setUsageCount(currentCount + 1);
         }
       }
   
@@ -136,10 +141,6 @@ export default function GeneratePage() {
       setPromptText(koreanPrompt);
       const translated = await translateToEnglish(koreanPrompt);
   
-      console.log('보내는 prompt:', translated);
-      console.log('보내는 uid:', user.uid);
-  
-      // ✅ fetch 결과를 response에 저장해야 함!
       const response = await fetch("https://us-central1-fdesign-b.cloudfunctions.net/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -147,18 +148,12 @@ export default function GeneratePage() {
       });
   
       const responseText = await response.text();
-      console.log('🔍 응답 원본:', responseText);
+      const data = JSON.parse(responseText);
   
-      try {
-        const data = JSON.parse(responseText);
-        if (data?.image) {
-          setImage(data.image);
-        } else {
-          throw new Error('이미지가 생성되지 않았습니다.');
-        }
-      } catch (error) {
-        console.error('❌ JSON 파싱 실패:', error);
-        alert('서버에서 잘못된 응답을 받았습니다.');
+      if (data?.image) {
+        setImage(data.image);
+      } else {
+        throw new Error('이미지가 생성되지 않았습니다.');
       }
   
     } catch (err) {
@@ -167,11 +162,8 @@ export default function GeneratePage() {
     } finally {
       setLoading(false);
     }
-    if (!user?.isAdmin && currentCount >= 5) {
-      setLoading(false);
-      return alert('이미지를 더 생성하려면 플랜을 업그레이드 하거나 12시 이후에 다시 시도해주세요.');
-    }
   };
+  
   
   
 
