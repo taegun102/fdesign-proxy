@@ -5,7 +5,16 @@ import { useEffect, useState } from 'react';
 import { auth } from '../../firebase/firebaseConfig';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
-import { FaBell, FaUser } from 'react-icons/fa';
+import {
+  FaHome,
+  FaPencilAlt,
+  FaImage,
+  FaPalette,
+  FaBell,
+  FaUser,
+  FaSignInAlt,
+  FaBan,
+} from 'react-icons/fa';
 
 export default function NavBar() {
   const [user, setUser] = useState(null);
@@ -34,45 +43,47 @@ export default function NavBar() {
       </Link>
 
       {/* 오른쪽: 메뉴 */}
-      <div className="flex items-center gap-4 text-xl">
-        <Link href="/" className="hover:text-purple-400">
-          🏠
+      <div className="flex items-center gap-5 text-xl">
+        <Link href="/" className="hover:text-purple-400" title="홈">
+          <FaHome />
         </Link>
 
         {!user ? (
-          <Link href="/login" className="hover:text-purple-400">
-            🔐
+          <Link href="/login" className="hover:text-purple-400" title="로그인">
+            <FaSignInAlt />
           </Link>
         ) : (
           <>
-            <Link href="/generate" className="hover:text-purple-400">
-              ✏️
+            <Link href="/generate" className="hover:text-purple-400" title="이미지 생성">
+              <FaPencilAlt />
             </Link>
-            <Link href="/gallery" className="hover:text-purple-400">
-              🖼️
+            <Link href="/gallery" className="hover:text-purple-400" title="갤러리">
+              <FaImage />
             </Link>
-            <Link href="/playground" className="hover:text-purple-400">
-              🎨
+            <Link href="/playground" className="hover:text-purple-400" title="플레이그라운드">
+              <FaPalette />
             </Link>
             <Link
               href="/notifications"
-              className="hover:text-purple-400 flex items-center gap-1"
+              className="hover:text-purple-400"
+              title="알림"
             >
               <FaBell />
             </Link>
             <Link
               href="/profile"
-              className="hover:text-purple-400 flex items-center gap-1 text-sm"
+              className="hover:text-purple-400 text-sm flex items-center gap-1"
+              title="프로필"
             >
               <FaUser />
               {user.displayName || '프로필'}
             </Link>
             <button
               onClick={handleLogout}
-              className="hover:text-red-400 text-xl"
+              className="hover:text-red-400"
               title="로그아웃"
             >
-              🚫
+              <FaBan />
             </button>
           </>
         )}
@@ -80,4 +91,3 @@ export default function NavBar() {
     </nav>
   );
 }
-
