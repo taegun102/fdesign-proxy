@@ -27,43 +27,52 @@ export default function NavBar() {
       {/* 왼쪽: 로고 */}
       <Link href="/">
         <img
-          src="/logo.png" // 퍼블릭 폴더에 저장될 파일 이름
+          src="/logo.png"
           alt="F_DESIGN Logo"
           className="h-16 w-auto mr-1 object-contain"
         />
       </Link>
 
       {/* 오른쪽: 메뉴 */}
-      <div className="flex items-center gap-4">
-        <Link href="/" className="hover:text-purple-400 text-sm">
-          홈
+      <div className="flex items-center gap-4 text-xl">
+        <Link href="/" className="hover:text-purple-400">
+          🏠
         </Link>
 
         {!user ? (
-          <Link href="/login" className="hover:text-purple-400 text-sm">
-            로그인
+          <Link href="/login" className="hover:text-purple-400">
+            🔐
           </Link>
         ) : (
           <>
-            <Link href="/generate" className="hover:text-purple-400 text-sm">
-              이미지 생성
+            <Link href="/generate" className="hover:text-purple-400">
+              ✏️
             </Link>
-            <Link href="/gallery" className="hover:text-purple-400 text-sm">
-              갤러리
+            <Link href="/gallery" className="hover:text-purple-400">
+              🖼️
             </Link>
-            <Link href="/playground" className="hover:text-purple-400 text-sm">
-              플레이그라운드
+            <Link href="/playground" className="hover:text-purple-400">
+              🎨
             </Link>
-            <Link href="/notifications" className="hover:text-purple-400 text-sm flex items-center gap-1">
+            <Link
+              href="/notifications"
+              className="hover:text-purple-400 flex items-center gap-1"
+            >
               <FaBell />
-              알림
             </Link>
-            <Link href="/profile" className="hover:text-purple-400 text-sm flex items-center gap-1">
+            <Link
+              href="/profile"
+              className="hover:text-purple-400 flex items-center gap-1 text-sm"
+            >
               <FaUser />
               {user.displayName || '프로필'}
             </Link>
-            <button onClick={handleLogout} className="hover:text-red-400 text-sm">
-              로그아웃
+            <button
+              onClick={handleLogout}
+              className="hover:text-red-400 text-xl"
+              title="로그아웃"
+            >
+              🚫
             </button>
           </>
         )}
@@ -71,3 +80,4 @@ export default function NavBar() {
     </nav>
   );
 }
+
