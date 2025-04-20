@@ -45,7 +45,19 @@ export default function GeneratePage() {
   const [promptText, setPromptText] = useState('');
 
   useEffect(() => {
-    onAuthStateChanged(auth, setUser);
+    onAuthStateChanged(auth, async (currentUser) => {
+      if (currentUser) {
+        const docRef = doc(db, 'userProfiles', currentUser.uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setUser({ ...currentUser, isAdmin: docSnap.data().isAdmin });
+        } else {
+          setUser(currentUser);
+        }
+      } else {
+        setUser(null);
+      }
+    });
   }, []);
 
   const buildNaturalPrompt = () => {
@@ -125,6 +137,10 @@ export default function GeneratePage() {
       alert('이미지 생성 실패');
     } finally {
       setLoading(false);
+    }
+    if (!user?.isAdmin && currentCount >= 5) {
+      setLoading(false);
+      return alert('이미지를 더 생성하려면 플랜을 업그레이드 하거나 12시 이후에 다시 시도해주세요.');
     }
   };
   
