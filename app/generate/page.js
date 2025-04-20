@@ -43,19 +43,39 @@ export default function GeneratePage() {
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
   const [promptText, setPromptText] = useState('');
+  const [usageCount, setUsageCount] = useState(0);
 
   useEffect(() => {
     onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
         const docRef = doc(db, 'userProfiles', currentUser.uid);
         const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          setUser({ ...currentUser, isAdmin: docSnap.data().isAdmin });
+        const isAdmin = docSnap.exists() ? docSnap.data().isAdmin : false;
+        setUser({ ...currentUser, isAdmin });
+  
+        if (isAdmin) {
+          setUsageCount(0); // ✅ 관리자도 0으로 명시해줘야 안전
         } else {
-          setUser(currentUser);
+          const usageRef = doc(db, 'usageLogs', currentUser.uid);
+          const usageSnap = await getDoc(usageRef);
+          const nowKST = dayjs().tz('Asia/Seoul');
+          const todayMidnight = nowKST.startOf('day');
+  
+          if (!usageSnap.exists()) {
+            setUsageCount(0);
+          } else {
+            const data = usageSnap.data();
+            const lastReset = dayjs(data.resetDate.toDate());
+            if (lastReset.isBefore(todayMidnight)) {
+              setUsageCount(0);
+            } else {
+              setUsageCount(data.count || 0);
+            }
+          }
         }
       } else {
         setUser(null);
+        setUsageCount(0);
       }
     });
   }, []);
@@ -100,6 +120,7 @@ export default function GeneratePage() {
             return alert('이미지를 더 생성하려면 플랜을 업그레이드 하거나 12시 이후에 다시 시도해주세요.');
           }
           await updateDoc(usageRef, { count: currentCount + 1 });
+          setUsageCount(currentCount + 1);
         }
       }
   
@@ -216,12 +237,17 @@ export default function GeneratePage() {
         </div>
 
         <button
-          onClick={handleGenerate}
-          disabled={loading}
-          className="mt-6 bg-purple-600 hover:bg-purple-700 px-6 py-2 rounded text-white w-full"
-        >
-          {loading ? '생성 중...' : 'AI에게 요청하기'}
-        </button>
+  onClick={handleGenerate}
+  disabled={loading}
+  className="mt-6 bg-purple-600 hover:bg-purple-700 px-6 py-2 rounded text-white w-full"
+>
+  {loading
+    ? '생성 중...'
+    : user?.isAdmin
+      ? 'AI에게 요청하기'
+      : `AI에게 요청하기 (${usageCount}/5)`}
+</button>
+
 
         {image && (
           <div className="mt-10 text-center">
