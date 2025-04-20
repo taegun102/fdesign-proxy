@@ -98,12 +98,13 @@ export default function GeneratePage() {
       console.log('보내는 prompt:', translated);
       console.log('보내는 uid:', user.uid);
   
-      await fetch("https://us-central1-fdesign-b.cloudfunctions.net/api/generate", {
+      // ✅ fetch 결과를 response에 저장해야 함!
+      const response = await fetch("https://us-central1-fdesign-b.cloudfunctions.net/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt: translated, uid: user.uid }),
       });
-      
+  
       const responseText = await response.text();
       console.log('🔍 응답 원본:', responseText);
   
@@ -126,6 +127,7 @@ export default function GeneratePage() {
       setLoading(false);
     }
   };
+  
   
 
   const saveToGallery = async () => {
