@@ -63,17 +63,17 @@ export default function GeneratePage() {
 
   const handleGenerate = async () => {
     if (!user) return alert('로그인이 필요합니다.');
-
+  
     setLoading(true);
     setImage(null);
-
+  
     try {
       const usageRef = doc(db, 'usageLogs', user.uid);
       const usageSnap = await getDoc(usageRef);
       const nowKST = dayjs().tz('Asia/Seoul');
       const todayMidnight = nowKST.startOf('day');
       let currentCount = 0;
-
+  
       if (!usageSnap.exists()) {
         await setDoc(usageRef, { count: 1, resetDate: todayMidnight.toDate() });
       } else {
@@ -90,23 +90,23 @@ export default function GeneratePage() {
           await updateDoc(usageRef, { count: currentCount + 1 });
         }
       }
-
+  
       const koreanPrompt = customPrompt || buildNaturalPrompt();
       setPromptText(koreanPrompt);
       const translated = await translateToEnglish(koreanPrompt);
-
+  
       console.log('보내는 prompt:', translated);
       console.log('보내는 uid:', user.uid);
-
-      fetch("https://us-central1-fdesign-b.cloudfunctions.net/api/generate", {
+  
+      const response = await fetch("https://us-central1-fdesign-b.cloudfunctions.net/api/generate", {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt: translated, uid: user.uid }),
       });
-
-      const responseText = await res.text();
+  
+      const responseText = await response.text();
       console.log('🔍 응답 원본:', responseText);
-
+  
       try {
         const data = JSON.parse(responseText);
         if (data?.image) {
@@ -118,7 +118,7 @@ export default function GeneratePage() {
         console.error('❌ JSON 파싱 실패:', error);
         alert('서버에서 잘못된 응답을 받았습니다.');
       }
-
+  
     } catch (err) {
       console.error('❌ 이미지 생성 실패:', err);
       alert('이미지 생성 실패');
@@ -126,6 +126,7 @@ export default function GeneratePage() {
       setLoading(false);
     }
   };
+  
 
   const saveToGallery = async () => {
     if (!user || !image) return;
