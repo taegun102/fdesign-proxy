@@ -82,11 +82,11 @@ export default function GeneratePage() {
 
   const buildNaturalPrompt = () => {
     return (
-      `${season} 시즌에 어울리는 ${gender}용 ${color} 컬러의 ${fit} 핏 ${fabric ? fabric + ' 소재의 ' : ''}` +
-      `${pattern ? pattern + ' 패턴이 무조건 들어간 ' : ''}${type} 디자인입니다. ` +
-      `스타일은 ${mood} 무드로 구성되었고, ` +
-      `${theme ? `테마는 ${theme}이며, ` : ''}` +
-      `${occasion ? `사용 목적은 ${occasion}입니다. ` : ''}` +
+      `무조건 ${season} 시즌에 어울리는 ${gender}용 ${color} 컬러의 무조건 ${fit} 핏 ${fabric ? fabric + ' 소재의 ' : ''}` +
+      `${pattern ? pattern + ' 패턴이 무조건 들어간 ' : ''}무조건 ${type} 디자인입니다. ` +
+      `스타일은 무조건 ${mood} 무드로 구성되었고, ` +
+      `${theme ? `테마는 무조건 ${theme}이며, ` : ''}` +
+      `${occasion ? `사용 목적은 무조건 ${occasion}입니다. ` : ''}` +
       `${details ? `디테일 요소로는 ${details}를 무조건 포함해주고, ` : ''}` +
       `${accessory ? `악세서리로는 ${accessory}가 무조건 포함되어 있습니다. ` : ''}` +
       `하얀 배경, 사람 얼굴 없음, 정면 샷, 디테일한 재질 표현, 계절감 강조, 의류 중심의 스튜디오 촬영 스타일로 구성해주세요.`
