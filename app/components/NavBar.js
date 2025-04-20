@@ -44,9 +44,6 @@ export default function NavBar() {
 
       {/* 오른쪽: 메뉴 */}
       <div className="flex items-center gap-5 text-xl">
-        <Link href="/" className="hover:text-purple-400" title="홈">
-          <FaHome />
-        </Link>
 
         {!user ? (
           <Link href="/login" className="hover:text-purple-400" title="로그인">
