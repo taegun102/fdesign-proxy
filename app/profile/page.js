@@ -52,7 +52,8 @@ export default function ProfilePage() {
 
       const profileRef = doc(db, 'userProfiles', user.uid);
       
-await setDoc(profileRef, { displayName: newNickname }, { merge: true });
+      setDisplayName(newNickname);
+      setMessage('✅ 닉네임이 성공적으로 변경되었습니다.');
 
       setDisplayName(newNickname);
       setMessage('✅ 닉네임이 성공적으로 변경되었습니다.');
