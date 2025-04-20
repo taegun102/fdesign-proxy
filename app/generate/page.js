@@ -141,8 +141,7 @@ export default function GeneratePage() {
       setPromptText(koreanPrompt);
       const translated = await translateToEnglish(koreanPrompt);
   
-      const response = await fetch("https://us-central1-fdesign-b.cloudfunctions.net/generateImage", {
-        method: "POST",
+      const response = await fetch('https://us-central1-fdesign-b.cloudfunctions.net/generateImage', {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt: translated, uid: user.uid }),
       });
