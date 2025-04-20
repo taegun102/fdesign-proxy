@@ -95,7 +95,7 @@ export default function GeneratePage() {
           await setDoc(usageRef, { count: 1, resetDate: todayMidnight.toDate() });
         } else {
           currentCount = data.count;
-          if (currentCount >= 5) {
+          if (!user?.isAdmin && currentCount >= 5) {
             setLoading(false);
             return alert('이미지를 더 생성하려면 플랜을 업그레이드 하거나 12시 이후에 다시 시도해주세요.');
           }
