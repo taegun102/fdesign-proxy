@@ -160,7 +160,6 @@ export default function ProfilePage() {
           {likedPosts.map((img) => (
             <div key={img.id} className="bg-gray-800 p-3 rounded shadow-lg">
               <img src={img.url} alt="좋아요 이미지" className="rounded mb-2" />
-              <p className="text-sm text-gray-300">{img.prompt}</p>
               <button
                 onClick={() => handleUnlike(img.id)}
                 className="mt-2 bg-gray-600 hover:bg-gray-500 px-3 py-1 rounded text-xs"
