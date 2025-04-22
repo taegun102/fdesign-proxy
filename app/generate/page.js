@@ -141,7 +141,7 @@ export default function GeneratePage() {
       setPromptText(koreanPrompt);
       const translated = await translateToEnglish(koreanPrompt);
   
-      const response = await fetch("https://fdesign-gateway-8ji401q1.uc.gateway.dev/generate", {
+      const response = await fetch("https://us-central1-fdesign-b.cloudfunctions.net/generateImage", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -150,7 +150,7 @@ export default function GeneratePage() {
           prompt: translated,
           uid: user.uid,
         }),
-      });
+      });  
       
        
   
