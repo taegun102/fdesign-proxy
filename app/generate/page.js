@@ -152,7 +152,7 @@ export default function GeneratePage() {
         }),
       });
       
-      
+       
   
       const data = await response.json();
   
