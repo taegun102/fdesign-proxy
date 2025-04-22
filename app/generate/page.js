@@ -141,7 +141,7 @@ export default function GeneratePage() {
       setPromptText(koreanPrompt);
       const translated = await translateToEnglish(koreanPrompt);
   
-      const response = await fetch('https://generateimage-669367289017.us-central1.run.app/generate', {
+      const response = await fetch('https://generateimage-669367289017.us-central1.run.app', {
         method: "POST", // ✅ 이 줄 꼭 필요!
         headers: {
           "Content-Type": "application/json",
