@@ -145,7 +145,7 @@ export default function GeneratePage() {
       setPromptText(koreanPrompt);
       const translated = await translateToEnglish(koreanPrompt);
   
-   // 1️⃣ 기본 이미지 + ControlNet 보정 포함된 요청 (백엔드가 전부 처리)
+// 1️⃣ 기본 이미지 생성 요청 (ControlNet 없이)
 const generateRes = await fetch("https://generateimage-669367289017.us-central1.run.app/generate", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
@@ -155,8 +155,9 @@ const generateRes = await fetch("https://generateimage-669367289017.us-central1.
 const genData = await generateRes.json();
 if (!genData?.image) throw new Error('이미지 생성 실패');
 
-// 2️⃣ 최종 보정된 이미지 바로 표시
+// 2️⃣ 기본 이미지 바로 표시
 setImage(genData.image);
+
 
     } catch (err) {
       console.error('❌ 이미지 생성 실패:', err);
