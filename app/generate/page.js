@@ -145,28 +145,19 @@ export default function GeneratePage() {
       setPromptText(koreanPrompt);
       const translated = await translateToEnglish(koreanPrompt);
   
-      // 1️⃣ 기본 이미지 생성
-      const generateRes = await fetch("https://generateimage-669367289017.us-central1.run.app/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: translated, uid: user.uid }),
-      });
-  
-      const genData = await generateRes.json();
-      if (!genData?.image) throw new Error('기본 이미지 생성 실패');
-  
-      // 2️⃣ ControlNet 보정 요청
-      const controlRes = await fetch("https://generateimage-669367289017.us-central1.run.app/controlnet", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: translated, image: genData.image }),
-      });
-  
-      const controlData = await controlRes.json();
-      if (!controlData?.image) throw new Error('ControlNet 보정 실패');
-  
-      setImage(controlData.image); // 보정된 최종 이미지 표시
-  
+   // 1️⃣ 기본 이미지 + ControlNet 보정 포함된 요청 (백엔드가 전부 처리)
+const generateRes = await fetch("https://generateimage-669367289017.us-central1.run.app/generate", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ prompt: translated, uid: user.uid }),
+});
+
+const genData = await generateRes.json();
+if (!genData?.image) throw new Error('이미지 생성 실패');
+
+// 2️⃣ 최종 보정된 이미지 바로 표시
+setImage(genData.image);
+
     } catch (err) {
       console.error('❌ 이미지 생성 실패:', err);
       alert('이미지 생성 실패');
