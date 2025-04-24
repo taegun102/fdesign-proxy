@@ -145,26 +145,27 @@ export default function GeneratePage() {
       setPromptText(koreanPrompt);
       const translated = await translateToEnglish(koreanPrompt);
   
-      const response = await fetch("https://generateimage-669367289017.us-central1.run.app/generate", {
+      // 1️⃣ 기본 이미지 생성
+      const generateRes = await fetch("https://generateimage-669367289017.us-central1.run.app/generate", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          prompt: translated,
-          uid: user.uid,
-        }),
-      });  
-      
-       
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: translated, uid: user.uid }),
+      });
   
-      const data = await response.json();
+      const genData = await generateRes.json();
+      if (!genData?.image) throw new Error('기본 이미지 생성 실패');
   
-      if (data?.image) {
-        setImage(data.image);
-      } else {
-        throw new Error('이미지가 생성되지 않았습니다.');
-      }
+      // 2️⃣ ControlNet 보정 요청
+      const controlRes = await fetch("https://generateimage-669367289017.us-central1.run.app/controlnet", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: translated, image: genData.image }),
+      });
+  
+      const controlData = await controlRes.json();
+      if (!controlData?.image) throw new Error('ControlNet 보정 실패');
+  
+      setImage(controlData.image); // 보정된 최종 이미지 표시
   
     } catch (err) {
       console.error('❌ 이미지 생성 실패:', err);
@@ -173,6 +174,7 @@ export default function GeneratePage() {
       setLoading(false);
     }
   };
+  
   
   
   
