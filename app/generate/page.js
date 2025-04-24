@@ -82,23 +82,27 @@ export default function GeneratePage() {
 
   const buildNaturalPrompt = () => {
     return (
-      `절대적으로 ${season} 시즌에 어울리는, ${gender} 전용 디자인이어야 합니다. ` +
-      `컬러는 반드시 "${color}"여야 하고, 핏은 철저하게 "${fit}" 핏입니다. ` +
-      `${fabric ? `소재는 반드시 "${fabric}"이어야 하며, ` : ''}` +
-      `${pattern ? `"${pattern}" 패턴이 무조건 포함되어 있어야 합니다. ` : ''}` +
-      `옷 종류는 "${type}"로 고정이며, 절대 다른 종류로 표현되어선 안 됩니다. ` +
-      `스타일 무드는 "${mood}"로 한정하며, 스타일 타입은 "${styleType}"이어야만 합니다. ` +
-      `${theme ? `테마는 "${theme}"로 제한됩니다. ` : ''}` +
-      `${occasion ? `이 디자인은 "${occasion}" 목적을 철저히 반영해야 합니다. ` : ''}` +
-      `${details ? `"${details}" 디테일은 필수이며, 반드시 시각적으로 명확히 표현되어야 합니다. ` : ''}` +
-      `${accessory ? `악세서리는 반드시 "${accessory}"가 포함되어 있어야 합니다. ` : ''}` +
-      `전체 이미지는 반드시 하얀 배경에서 촬영된 것처럼 보여야 하며, ` +
-      `절대로 사람의 얼굴이 나타나선 안 됩니다. ` +
-      `정면 샷으로 촬영되어야 하고, 소재의 질감은 디테일하게 표현되어야 하며, ` +
-      `계절감을 강하게 느낄 수 있어야 하며, ` +
-      `전체적으로 옷 자체에 집중된 스튜디오 화보 스타일로 철저히 연출되어야 합니다.`
+      `This is a strictly ${gender} only fashion design for the ${season} season. ` +
+      `The color must be "${color}", no other colors allowed. The fit must strictly be "${fit}" fit. ` +
+      `${fabric ? `The material must be "${fabric}", and it must be clearly visible. ` : ''}` +
+      `${pattern ? `It must include the pattern "${pattern}" clearly on the fabric. ` : ''}` +
+      `The garment type is strictly "${type}", no other types are acceptable. ` +
+      `The mood must be "${mood}", and it must visually reflect this mood in every detail. ` +
+      `${styleType ? `The style type must be "${styleType}", and no deviation is allowed. ` : ''}` +
+      `${theme ? `The theme is "${theme}", and it must be the only theme visible. ` : ''}` +
+      `${occasion ? `This design is meant for "${occasion}", and should be perfectly suited for that. ` : ''}` +
+      `${details ? `It must include "${details}" details prominently displayed. ` : ''}` +
+      `${accessory ? `Accessories like "${accessory}" must be included and visible. ` : ''}` +
+      `The image must be taken in a white studio background, full-body front view only. ` +
+      `No faces are allowed. Only the garment is visible, centered. ` +
+      `The fabric texture must be highly detailed. ` +
+      `It must have a strong seasonal feel of ${season}. ` +
+      `Style must reflect the "Jirai Kei" (지뢰계) aesthetic: sickly pale, black lace, edgy, with gothic punk elements. ` +
+      `Never include modern casual or normal styles. This is a subculture look. ` +
+      `The output must be a high-quality fashion magazine style image focused strictly on the clothes.`
     );
   };
+  
   
 
   const handleGenerate = async () => {
