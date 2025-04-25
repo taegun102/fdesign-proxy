@@ -45,6 +45,9 @@ export default function GeneratePage() {
   const [promptText, setPromptText] = useState('');
   const [usageCount, setUsageCount] = useState(0);
 
+  const [editPrompt, setEditPrompt] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
+
   useEffect(() => {
     onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
@@ -52,15 +55,15 @@ export default function GeneratePage() {
         const docSnap = await getDoc(docRef);
         const isAdmin = docSnap.exists() ? docSnap.data().isAdmin : false;
         setUser({ ...currentUser, isAdmin });
-  
+
         if (isAdmin) {
-          setUsageCount(0); // ✅ 관리자도 0으로 명시해줘야 안전
+          setUsageCount(0);
         } else {
           const usageRef = doc(db, 'usageLogs', currentUser.uid);
           const usageSnap = await getDoc(usageRef);
           const nowKST = dayjs().tz('Asia/Seoul');
           const todayMidnight = nowKST.startOf('day');
-  
+
           if (!usageSnap.exists()) {
             setUsageCount(0);
           } else {
@@ -102,24 +105,22 @@ export default function GeneratePage() {
       `The output must be a high-quality fashion magazine style image focused strictly on the clothes.`
     );
   };
-  
-  
 
   const handleGenerate = async () => {
     if (!user) return alert('로그인이 필요합니다.');
-  
+
     setLoading(true);
     setImage(null);
-  
+
     try {
       const nowKST = dayjs().tz('Asia/Seoul');
       const todayMidnight = nowKST.startOf('day');
       let currentCount = 0;
-  
+
       if (!user.isAdmin) {
         const usageRef = doc(db, 'usageLogs', user.uid);
         const usageSnap = await getDoc(usageRef);
-  
+
         if (!usageSnap.exists()) {
           await setDoc(usageRef, { count: 1, resetDate: todayMidnight.toDate() });
           setUsageCount(1);
@@ -140,24 +141,21 @@ export default function GeneratePage() {
           }
         }
       }
-  
+
       const koreanPrompt = customPrompt || buildNaturalPrompt();
       setPromptText(koreanPrompt);
       const translated = await translateToEnglish(koreanPrompt);
-  
-// 1️⃣ 기본 이미지 생성 요청 (ControlNet 없이)
-const generateRes = await fetch("https://generateimage-669367289017.us-central1.run.app/generate", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ prompt: translated, uid: user.uid }),
-});
 
-const genData = await generateRes.json();
-if (!genData?.image) throw new Error('이미지 생성 실패');
+      const generateRes = await fetch("https://generateimage-669367289017.us-central1.run.app/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: translated, uid: user.uid }),
+      });
 
-// 2️⃣ 기본 이미지 바로 표시
-setImage(genData.image);
+      const genData = await generateRes.json();
+      if (!genData?.image) throw new Error('이미지 생성 실패');
 
+      setImage(genData.image);
 
     } catch (err) {
       console.error('❌ 이미지 생성 실패:', err);
@@ -166,10 +164,35 @@ setImage(genData.image);
       setLoading(false);
     }
   };
-  
-  
-  
-  
+
+  const handleEditImage = async () => {
+    if (!editPrompt.trim() || !image) return alert('수정할 프롬프트를 입력하세요.');
+
+    setLoading(true);
+
+    try {
+      const translatedEditPrompt = await translateToEnglish(editPrompt);
+
+      const editRes = await fetch("https://generateimage-669367289017.us-central1.run.app/edit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: translatedEditPrompt, image }),
+      });
+
+      const editData = await editRes.json();
+      if (!editData?.image) throw new Error('수정 이미지 생성 실패');
+
+      setImage(editData.image);
+      setIsEditing(false);
+      setEditPrompt('');
+      setPromptText(editPrompt);
+    } catch (err) {
+      console.error('❌ 이미지 수정 실패:', err);
+      alert('이미지 수정 실패');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const saveToGallery = async () => {
     if (!user || !image) return;
@@ -209,21 +232,7 @@ setImage(genData.image);
         {!user && <p className="text-red-400 mb-4 text-center">⚠️ 로그인 후 이용해 주세요.</p>}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {[
-            { label: '성별', value: gender, setValue: setGender, options: ['여성', '남성', '유니섹스'] },
-            { label: '컬러', value: color, setValue: setColor, type: 'text', placeholder: '예: 어두운 보라' },
-            { label: '무드', value: mood, setValue: setMood, options: ['키치', '로맨틱', '고딕', '모던', '스트리트','빈티지','보헤미안','아방가르드','캐주얼','시크'] },
-            { label: '옷 종류', value: type, setValue: setType, options: ['셔츠', '드레스', '후드티', '점프수트','티셔츠','재킷','코트','원피스','스커트','팬츠','니트'] },
-            { label: '핏', value: fit, setValue: setFit, options: ['오버핏', '슬림핏', '루즈핏'] },
-            { label: '시즌', value: season, setValue: setSeason, options: ['봄', '여름', '가을', '겨울'] },
-            { label: '소재', value: fabric, setValue: setFabric, options: ['레더', '코튼', '실크', '데님', '니트','다이마루','시스루','퍼'] },
-            { label: '패턴', value: pattern, setValue: setPattern, options: ['무지', '체크', '스트라이프', '플로럴', '애니멀','페이즐리','카모플라주'] },
-            { label: '상황/목적', value: occasion, setValue: setOccasion, type: 'text', placeholder: '예: 데일리룩' },
-            { label: '악세서리 포함', value: accessory, setValue: setAccessory, type: 'text', placeholder: '예: 벨트, 포켓' },
-            { label: '테마', value: theme, setValue: setTheme, type: 'text', placeholder: '예: 하이틴룩' },
-            { label: '디테일 요소', value: details, setValue: setDetails, type: 'text', placeholder: '예: 프릴, 지퍼' },
-         
-          ].map((opt, i) =>
+          {[{ label: '성별', value: gender, setValue: setGender, options: ['여성', '남성', '유니섹스'] }, { label: '컬러', value: color, setValue: setColor, type: 'text', placeholder: '예: 어두운 보라' }, { label: '무드', value: mood, setValue: setMood, options: ['키치', '로맨틱', '고딕', '모던', '스트리트','빈티지','보헤미안','아방가르드','캐주얼','시크'] }, { label: '옷 종류', value: type, setValue: setType, options: ['셔츠', '드레스', '후드티', '점프수트','티셔츠','재킷','코트','원피스','스커트','팬츠','니트'] }, { label: '핏', value: fit, setValue: setFit, options: ['오버핏', '슬림핏', '루즈핏'] }, { label: '시즌', value: season, setValue: setSeason, options: ['봄', '여름', '가을', '겨울'] }, { label: '소재', value: fabric, setValue: setFabric, options: ['레더', '코튼', '실크', '데님', '니트','다이마루','시스루','퍼'] }, { label: '패턴', value: pattern, setValue: setPattern, options: ['무지', '체크', '스트라이프', '플로럴', '애니멀','페이즐리','카모플라주'] }, { label: '상황/목적', value: occasion, setValue: setOccasion, type: 'text', placeholder: '예: 데일리룩' }, { label: '악세서리 포함', value: accessory, setValue: setAccessory, type: 'text', placeholder: '예: 벨트, 포켓' }, { label: '테마', value: theme, setValue: setTheme, type: 'text', placeholder: '예: 하이틴룩' }, { label: '디테일 요소', value: details, setValue: setDetails, type: 'text', placeholder: '예: 프릴, 지퍼' }].map((opt, i) =>
             opt.type === 'text'
               ? <TextInput key={i} {...opt} />
               : <SelectOption key={i} {...opt} />
@@ -241,17 +250,16 @@ setImage(genData.image);
         </div>
 
         <button
-  onClick={handleGenerate}
-  disabled={loading}
-  className="mt-6 bg-purple-600 hover:bg-purple-700 px-6 py-2 rounded text-white w-full"
->
-  {loading
-    ? '생성 중...'
-    : user?.isAdmin
-      ? 'AI에게 요청하기'
-      : `AI에게 요청하기 (${usageCount}/5)`}
-</button>
-
+          onClick={handleGenerate}
+          disabled={loading}
+          className="mt-6 bg-purple-600 hover:bg-purple-700 px-6 py-2 rounded text-white w-full"
+        >
+          {loading
+            ? '생성 중...'
+            : user?.isAdmin
+              ? 'AI에게 요청하기'
+              : `AI에게 요청하기 (${usageCount}/5)`}
+        </button>
 
         {image && (
           <div className="mt-10 text-center">
@@ -259,7 +267,26 @@ setImage(genData.image);
             <div className="mt-4 flex gap-4 justify-center">
               <button onClick={downloadImage} className="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded text-sm">📥 사진 저장</button>
               <button onClick={saveToGallery} className="bg-purple-700 hover:bg-purple-600 px-4 py-2 rounded text-sm">💾 갤러리에 저장</button>
+              <button onClick={() => setIsEditing(!isEditing)} className="bg-blue-700 hover:bg-blue-600 px-4 py-2 rounded text-sm">✏️ 이미지 수정</button>
             </div>
+
+            {isEditing && (
+              <div className="mt-4">
+                <textarea
+                  value={editPrompt}
+                  onChange={(e) => setEditPrompt(e.target.value)}
+                  placeholder="추가 수정 프롬프트를 입력하세요."
+                  className="w-full bg-gray-800 p-2 rounded h-24"
+                />
+                <button
+                  onClick={handleEditImage}
+                  disabled={loading}
+                  className="mt-2 bg-green-600 hover:bg-green-700 px-6 py-2 rounded text-white w-full"
+                >
+                  {loading ? '수정 중...' : '수정된 이미지 생성'}
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
